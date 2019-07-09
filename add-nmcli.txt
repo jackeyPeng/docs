@@ -1,0 +1,65 @@
+Open the Terminal app
+Get info about the current connection:
+nmcli con show
+Add a new bridge:
+nmcli con add type bridge ifname br0
+Create a slave interface:
+nmcli con add type bridge-slave ifname eno1 master br0
+Turn on br0:
+nmcli con up br0
+
+Another option is to type the following command:
+$ nmcli con show
+$ nmcli connection show --active
+
+How to create a bridge, named br0
+$ sudo nmcli con add ifname br0 type bridge con-name br0
+$ sudo nmcli con add type bridge-slave ifname eno1 master br0
+$ nmcli connection show
+
+
+You can disable STP too:
+$ sudo nmcli con modify br0 bridge.stp no
+$ nmcli con show
+$ nmcli -f bridge con show br0
+
+How to turn on bridge interface
+You must turn off “Wired connection 1” and turn on br0:
+$ sudo nmcli con down "Wired connection 1"
+$ sudo nmcli con up br0
+$ nmcli con show
+
+Use ip command to view the IP settings:
+$ ip a s
+$ ip a s br0
+
+
+
+Optional: How to use br0 with KVM
+Now you can connect VMs (virtual machine) created with KVM/VirtualBox/VMware workstation to a network directly without using NAT. Create a file named br0.xml for KVM using vi command or cat command:
+$ cat /tmp/br0.xml
+
+Append the following code:
+
+<network>
+  <name>br0</name>
+  <forward mode="bridge"/>
+  <bridge name="br0" />
+</network>
+
+
+Run virsh command as follows:
+# virsh net-define /tmp/br0.xml
+# virsh net-start br0
+# virsh net-autostart br0
+# virsh net-list --all
+
+Sample outputs:
+
+ Name                 State      Autostart     Persistent
+----------------------------------------------------------
+ br0                  active     yes           yes
+ default              inactive   no            yes
+For more info read the following man page:
+$ man ip
+$ man nmcli
